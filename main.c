@@ -36,9 +36,15 @@ char numToASCII(int num) {
 int insertWord(char val[500], struct Node *trie, int begin) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
+    memset(userAsciiTracker,0,500*sizeof(char));
     int asciiNodeTracker[500];
+    memset(asciiNodeTracker,0,500*sizeof(char));
+    char suffixArray[500];
+    memset(suffixArray,0,500*sizeof(char));
+    char checkIfSame[500];
+    memset(checkIfSame,'\0',500*sizeof(char));
     int nodeStringLen = 0;
-    int flagForMatch = 1; // 1 = suffix case
+    int flagForMatch = 0; // 1 = suffix case
     // Insert the empty node when the trie is empty
     printf("%s\n", val);
         int ascii = getContainer(val, 0);
@@ -74,53 +80,55 @@ int insertWord(char val[500], struct Node *trie, int begin) {
             length = (int) strlen(travPoint->strings);
         }
 
-    if(strcmp(travPoint->strings,val) == 0) {
+    if(strcmp(travPoint->strings,val) == 0 && travPoint->strings[1] == '\0') {
         printf("%s","It enters");
         return 0;
     }
 
-        for (int j = 0; j < length; j++) {
-                //Suffix case
-                if (userAsciiTracker[j] != asciiNodeTracker[j] && asciiNodeTracker[j] == 0) {
-                    char finalString[500];
-                    memset(finalString,'\0',sizeof(char)*500); // Clear the junk
-                    char paste;
-                    char *ptr;
-                    for (int k = j; k < length; ++k) {
-                        //Save the suffix
-                        paste = (char) (userAsciiTracker[j] + 97);//////////////////////////////////
-                        strcat(finalString, &paste);
-                    }
-                    printf("%s",finalString);
 
 
-
-                    // Should be the beginning letter of the suffix where we check if its there or not
-                    if (travPoint->child[userAsciiTracker[j]] == NULL) {
-                        //No node, put it in!
-                        travPoint->child[userAsciiTracker[j]] = (struct Node *) calloc(26,
-                                                                                       sizeof(struct Node));
-                        travPoint->child[userAsciiTracker[j]]->endOfWord = 1;
-
-                        strcpy(travPoint->child[userAsciiTracker[j]]->strings, finalString);
-
-                        break;
-                    }
-                    // Need to add more stuff here
-                    else if (travPoint->child[userAsciiTracker[j]] != NULL) {
-                        travPoint = travPoint->child[userAsciiTracker[j]]; // Maybe  //TODO:Might need to do recursion instead, recurse everytime it is a suffix case, and only pass in the char suffix
-                        return insertWord(finalString,travPoint,0);
-
-
-                    }
-                    //Need to fix if it is equal to
-                    if(strcmp(travPoint->strings,finalString) == 0) {
-                        printf("%s","It enters");
-                        return 0;
-                    }
-                }
-
+    int j = 0;
+    int lastLetterContainer = 0;
+    for (int i = 0; i < length; i++) {
+        if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 0) {
+            //Save the suffix
+            //memset(suffixArray,'\0',500*sizeof(char));
+            suffixArray[j] = (char) (userAsciiTracker[i]+97);
+            j++;
         }
+        else{
+            //Something here
+            lastLetterContainer = userAsciiTracker[i+1];
+           checkIfSame[i] = (char)(userAsciiTracker[i]+97);
+
+            //TODO:Need to check when the node is alwready in there, go down
+            if (strcmp(checkIfSame,travPoint->strings ) == 0 && travPoint->child[lastLetterContainer] != NULL) {
+                flagForMatch = 1;
+            }
+        }
+    }
+    //TODO:Need to check when the node is alwready in there, go down
+    if (flagForMatch) {
+        travPoint = travPoint->child[lastLetterContainer];
+        return insertWord(suffixArray,travPoint,0);
+    }
+
+
+    //if the child at the last letter of the suffix is empty, put the node in
+    if (travPoint->child[lastLetterContainer] == NULL) {
+        travPoint->child[lastLetterContainer] = (struct Node *) calloc(26,
+                                                                       sizeof(struct Node));
+        travPoint->child[lastLetterContainer]->endOfWord = 1;
+        strcpy(travPoint->child[lastLetterContainer]->strings,suffixArray);
+        //memset(suffixArray,'\0',500*sizeof(char));
+    }
+
+
+    else if (travPoint->child[userAsciiTracker[j]] != NULL) {
+        travPoint = travPoint->child[lastLetterContainer]; // Maybe  //TODO:Might need to do recursion instead, recurse everytime it is a suffix case, and only pass in the char suffix
+        return insertWord(suffixArray,travPoint,0);
+
+    }
 
 
 
