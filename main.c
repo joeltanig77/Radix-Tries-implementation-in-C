@@ -34,7 +34,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
     int nodeStringLen = 0;
     int flagForMatch = 0; // 1 = suffix case
     // Insert the empty node when the trie is empty
-    printf("%s\n", val);
+   // printf("%s\n", val);
     int ascii = getContainer(val, 0);
     if (begin || (travPoint->root == 1 && travPoint->child[ascii] == NULL)) {
         travPoint->child[ascii] = NULL;
@@ -62,6 +62,8 @@ int insertWord(char val[500], struct Node *trie, int begin) {
     }
 
     int length;
+    int lengthOfValString = ((int) strlen(val));
+    int lengthOfNodeString = (int) strlen(travPoint->strings);
 
     if (strlen(travPoint->strings) < strlen(val)) {
         length = (int) strlen(val);
@@ -71,6 +73,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
 
     if(strcmp(travPoint->strings,val) == 0) {
         printf("%s","It enters");
+        travPoint->endOfWord = 1;
         return 0;
     }
 
@@ -80,8 +83,12 @@ int insertWord(char val[500], struct Node *trie, int begin) {
 
     int suffixFlag = 0;
     int j = 0;
+    int v = 0;
     int lastLetterContainer = 0;
+    int firstLetterContainer = 0;
+    int savedFirstLetter = 0;
     for (int i = 0; i < length; i++) {
+        // Suffix Case
         if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 471604252 || suffixFlag == 1) {
             //Save the suffix
             //memset(suffixArray,'\0',500*sizeof(char));
@@ -89,12 +96,51 @@ int insertWord(char val[500], struct Node *trie, int begin) {
             j++;
             suffixFlag = 1;
         }
+        // Prefix Case for the backflip case, if the letters don't equal and there is still a letter after the cursor and all the prefixes matches split
+
+        else if (userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i+1] != 471604252 && lengthOfValString == 0) {
+            char proFixSave[500];
+            memset(proFixSave,'\0',500*sizeof(char));
+            //Let us first split it
+            for (int k = 0; k < strlen(checkIfSame); ++k) {
+                //If the char is the same as the node string, delete it
+                if (checkIfSame[k] == travPoint->strings[k]) {
+                    travPoint->strings[k] = '?'; //I did "?" instead of '\0' as strlen stops when a null is first seen
+                }
+            }
+            //Get the Profix
+            printf("%lu",strlen(travPoint->strings));
+            for (int k = 0; k < strlen(travPoint->strings); ++k) {
+                if (travPoint->strings[k] != '?'){
+                    if (savedFirstLetter == 0) {
+                        savedFirstLetter = 1;
+                        firstLetterContainer = getContainer(travPoint->strings,k);
+                    }
+                    proFixSave[v] = travPoint->strings[k]; //This should be Node 2 which is the profix and checkIfSame is the prefix
+                    v+=1;
+                }
+            }
+            //Save the prefix first
+            //Cleared out travPoint->strings first then copy
+            memset(travPoint->strings,'\0',500*sizeof(char));
+            strcpy(travPoint->strings,checkIfSame);
+            travPoint->endOfWord = 1;
+
+            //Then Save the profix
+            travPoint->child[firstLetterContainer] = NULL;
+            travPoint->child[firstLetterContainer] = (struct Node *) calloc(26,
+                                                             sizeof(struct Node));
+            strcpy(travPoint->child[firstLetterContainer]->strings,proFixSave);  //TODO Might have to flip proFixSave and checkIfSave
+            travPoint->child[firstLetterContainer]->endOfWord = 1;
+            //TODO: START HERE
+        }
 
 
-        else{
+        else {
             //If the node and the val given are the same, save the char
             lastLetterContainer = userAsciiTracker[i+1];
             checkIfSame[i] = (char)(userAsciiTracker[i]+97);
+            lengthOfValString -= 1;
 
             //Suffix Case
             if (strcmp(checkIfSame,travPoint->strings ) == 0 && travPoint->child[lastLetterContainer] != NULL) {
