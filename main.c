@@ -21,20 +21,9 @@ int getContainer(const char val[500],int spot){
     return ascii;
 }
 
-char* asciiArrayStringConverter(char *convertArray[500]) {
-    char* finalString[500];
-    for (int i = 0; i < 500; ++i) {
-       strcat(*finalString,convertArray[i]);
-    }
-    return *finalString;
-}
-
-char numToASCII(int num) {
-    return (char)num;
-}
 
 int insertWord(char val[500], struct Node *trie, int begin) {
-    struct Node *travPoint = trie;
+struct Node *travPoint = trie;
     int userAsciiTracker[500];
     memset(userAsciiTracker,0,500*sizeof(char));
     int asciiNodeTracker[500];
@@ -47,67 +36,68 @@ int insertWord(char val[500], struct Node *trie, int begin) {
     int flagForMatch = 0; // 1 = suffix case
     // Insert the empty node when the trie is empty
     printf("%s\n", val);
-        int ascii = getContainer(val, 0);
-        if (begin || (travPoint->root == 1 && travPoint->child[ascii] == NULL)) {
-            travPoint->child[ascii] = NULL;
-            travPoint->child[ascii] = (struct Node *) calloc(26,
-                                                             sizeof(struct Node)); // Might have to make this 1 since I am using child inside of node
-            travPoint->root = 1;
-            begin = 0;
-            strcpy(travPoint->child[ascii]->strings, val);
-            travPoint->endOfWord = 1;
-            travPoint = travPoint->child[ascii];
-            return 0;
-        }
-        //Move down from the sentinal
-        if(travPoint->root == 1) {
-            travPoint = travPoint->child[ascii];
-        }
+    int ascii = getContainer(val, 0);
+    if (begin || (travPoint->root == 1 && travPoint->child[ascii] == NULL)) {
+        travPoint->child[ascii] = NULL;
+        travPoint->child[ascii] = (struct Node *) calloc(26,
+                                                         sizeof(struct Node)); // Might have to make this 1 since I am using child inside of node
+        travPoint->root = 1;
+        begin = 0;
+        strcpy(travPoint->child[ascii]->strings, val);
+        travPoint->endOfWord = 1;
+        travPoint = travPoint->child[ascii];
+        return 0;
+    }
+    //Move down from the sentinal
+    if(travPoint->root == 1) {
+        travPoint = travPoint->child[ascii];
+    }
 
-        for (int j = 0; j < strlen(val); j++) {
-            userAsciiTracker[j] = getContainer(val, j);
-        }
+    for (int j = 0; j < strlen(val); j++) {
+        userAsciiTracker[j] = getContainer(val, j);
+    }
 
-        for (int k = 0; k < strlen(travPoint->strings); ++k) {
-            asciiNodeTracker[k] = getContainer(travPoint->strings, k);
-        }
+    for (int k = 0; k < strlen(travPoint->strings); ++k) {
+        asciiNodeTracker[k] = getContainer(travPoint->strings, k);
+    }
 
-        int length;
+    int length;
 
-        if (strlen(travPoint->strings) < strlen(val)) {
-            length = (int) strlen(val);
-        } else {
-            length = (int) strlen(travPoint->strings);
-        }
+    if (strlen(travPoint->strings) < strlen(val)) {
+        length = (int) strlen(val);
+    } else {
+        length = (int) strlen(travPoint->strings);
+    }
 
-    if(strcmp(travPoint->strings,val) == 0 && travPoint->strings[1] == '\0') {
+    if(strcmp(travPoint->strings,val) == 0) {
         printf("%s","It enters");
         return 0;
     }
 
 
-
+    int suffixFlag = 0;
     int j = 0;
     int lastLetterContainer = 0;
     for (int i = 0; i < length; i++) {
-        if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 0) {
+        if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 0 || suffixFlag == 1) {
             //Save the suffix
             //memset(suffixArray,'\0',500*sizeof(char));
             suffixArray[j] = (char) (userAsciiTracker[i]+97);
+            suffixFlag = 1;
             j++;
         }
         else{
             //Something here
             lastLetterContainer = userAsciiTracker[i+1];
-           checkIfSame[i] = (char)(userAsciiTracker[i]+97);
+            checkIfSame[i] = (char)(userAsciiTracker[i]+97);
 
-            //TODO:Need to check when the node is alwready in there, go down
+            //Suffix Case
             if (strcmp(checkIfSame,travPoint->strings ) == 0 && travPoint->child[lastLetterContainer] != NULL) {
                 flagForMatch = 1;
             }
         }
     }
-    //TODO:Need to check when the node is alwready in there, go down
+
     if (flagForMatch) {
         travPoint = travPoint->child[lastLetterContainer];
         return insertWord(suffixArray,travPoint,0);
@@ -124,11 +114,6 @@ int insertWord(char val[500], struct Node *trie, int begin) {
     }
 
 
-    else if (travPoint->child[userAsciiTracker[j]] != NULL) {
-        travPoint = travPoint->child[lastLetterContainer]; // Maybe  //TODO:Might need to do recursion instead, recurse everytime it is a suffix case, and only pass in the char suffix
-        return insertWord(suffixArray,travPoint,0);
-
-    }
 
 
 
