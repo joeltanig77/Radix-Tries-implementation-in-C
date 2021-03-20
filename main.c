@@ -4,7 +4,6 @@
 #include <string.h>
 
 
-
 struct Node {
     char strings[500];
     int endOfWord;
@@ -23,11 +22,11 @@ int getContainer(const char val[500],int spot){
 
 
 int insertWord(char val[500], struct Node *trie, int begin) {
-struct Node *travPoint = trie;
+    struct Node *travPoint = trie;
     int userAsciiTracker[500];
     memset(userAsciiTracker,0,500*sizeof(char));
     int asciiNodeTracker[500];
-    memset(asciiNodeTracker,0,500*sizeof(char));
+    memset(asciiNodeTracker,28,500*sizeof(char));
     char suffixArray[500];
     memset(suffixArray,0,500*sizeof(char));
     char checkIfSame[500];
@@ -48,7 +47,8 @@ struct Node *travPoint = trie;
         travPoint = travPoint->child[ascii];
         return 0;
     }
-    //Move down from the sentinal
+
+    //Move down from the sentinel
     if(travPoint->root == 1) {
         travPoint = travPoint->child[ascii];
     }
@@ -75,19 +75,24 @@ struct Node *travPoint = trie;
     }
 
 
+
+
+
     int suffixFlag = 0;
     int j = 0;
     int lastLetterContainer = 0;
     for (int i = 0; i < length; i++) {
-        if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 0 || suffixFlag == 1) {
+        if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 471604252 || suffixFlag == 1) {
             //Save the suffix
             //memset(suffixArray,'\0',500*sizeof(char));
             suffixArray[j] = (char) (userAsciiTracker[i]+97);
-            suffixFlag = 1;
             j++;
+            suffixFlag = 1;
         }
+
+
         else{
-            //Something here
+            //If the node and the val given are the same, save the char
             lastLetterContainer = userAsciiTracker[i+1];
             checkIfSame[i] = (char)(userAsciiTracker[i]+97);
 
@@ -112,24 +117,6 @@ struct Node *travPoint = trie;
         strcpy(travPoint->child[lastLetterContainer]->strings,suffixArray);
         //memset(suffixArray,'\0',500*sizeof(char));
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
