@@ -32,10 +32,8 @@ int insertWord(char val[500], struct Node *trie, int begin) {
     memset(suffixArray,0,500*sizeof(char));
     char checkIfSame[500];
     memset(checkIfSame,'\0',500*sizeof(char));
-    int nodeStringLen = 0;
     int flagForMatch = 0; // 1 = suffix case
     // Insert the empty node when the trie is empty
-   // printf("%s\n", val);
     int ascii = getContainer(val, 0);
     if (begin || (travPoint->root == 1 && travPoint->child[ascii] == NULL)) {
         travPoint->child[ascii] = NULL;
@@ -78,9 +76,6 @@ int insertWord(char val[500], struct Node *trie, int begin) {
         travPoint->endOfWord = 1;
         return 0;
     }
-
-
-
 
 
     int suffixFlag = 0;
@@ -135,7 +130,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
             temp->parent[0] = travPoint->parent[0];
             temp->child[getContainer(proFixSave,0)] = travPoint;
 
-            travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;  //Seg fault here :(
+            travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;
             travPoint->parent[0] = temp;
 
 
@@ -190,10 +185,31 @@ int insertWord(char val[500], struct Node *trie, int begin) {
                     v+=1;
                 }
             }
+            // Save the profix which is "flip"
+            memset(travPoint->strings,'\0',500*sizeof(char));
+            strcpy(travPoint->strings,proFixSave);
+            travPoint->endOfWord = 1;
 
-            //TODO: Need to somehow save these into nodes!!!! Also do not forget to getConatiner on the starting letters and find out about the parent
+            //ProfixSave = flip
+            //remainUserString = s
+            //checkIfSame = back == insert this
+            //TODO:Need to somehow save these into nodes!!!! Also do not forget to getConatiner on the starting letters and find out about the parent
+            //temp is the "back" and not the end of word
+            struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
+            struct Node *temp2 = (struct Node*)calloc(26,sizeof(struct Node));
+            strcpy(temp->strings,checkIfSame);
+            temp->endOfWord = 0;
+            temp->parent[0] = travPoint->parent[0];
+            temp->child[getContainer(proFixSave,0)] = travPoint;
+            // Save the second node
+            strcpy(temp2->strings,remainUserString);
+            temp2->endOfWord = 1;
+            temp->child[getContainer(remainUserString,0)] = temp2;
+            temp2->parent[0] = temp;
 
-
+            //Now need to save the nodes already in the trie!
+            travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;
+            travPoint->parent[0] = temp;
 
             return 0;
 
@@ -228,8 +244,6 @@ int insertWord(char val[500], struct Node *trie, int begin) {
         travPoint->child[lastLetterContainer]->parent[0] = travPoint;
         //memset(suffixArray,'\0',500*sizeof(char));
     }
-
-
 
 
 
