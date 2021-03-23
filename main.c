@@ -9,7 +9,7 @@ struct Node {
     int endOfWord;
     int root;
     struct Node * child[26];
-    struct Node * parent[26];
+    struct Node * parent[1];
 };
 
 
@@ -43,11 +43,10 @@ int insertWord(char val[500], struct Node *trie, int begin) {
                                                          sizeof(struct Node)); // Might have to make this 1 since I am using child inside of node
         travPoint->root = 1;
         // Link parent
-        travPoint->child[ascii]->parent[ascii] = travPoint;
+        travPoint->child[ascii]->parent[0] = travPoint;
         begin = 0;
         strcpy(travPoint->child[ascii]->strings, val);
         travPoint->endOfWord = 1;
-        travPoint = travPoint->child[ascii];
         return 0;
     }
 
@@ -66,7 +65,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
 
     int length;
     int lengthOfValString = ((int) strlen(val));
-    int lengthOfNodeString = (int) strlen(travPoint->strings);
+
 
     if (strlen(travPoint->strings) < strlen(val)) {
         length = (int) strlen(val);
@@ -107,7 +106,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
         }
         // Prefix Case for the backflip case, if the letters don't equal and there is still a letter after the cursor and all the prefixes matches split
 
-        else if (userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i+1] != 471604252 && lengthOfValString == 0) {
+        else if (userAsciiTracker[i] != asciiNodeTracker[i] && lengthOfValString == 0) {
             // Let us first split it and delete the already saved prefix from checkIfSame
             for (int k = 0; k < strlen(checkIfSame); ++k) {
                 //If the char is the same as the node string, delete it
@@ -128,19 +127,33 @@ int insertWord(char val[500], struct Node *trie, int begin) {
                     v+=1;
                 }
             }
-            //TODO: Figure out what node needs to go where for the prefix backflip case
             //Save the prefix first
-            //Cleared out travPoint->strings first then copy
-            memset(travPoint->strings,'\0',500*sizeof(char));
-            strcpy(travPoint->strings,checkIfSame);
-            travPoint->endOfWord = 1;
+           // travPoint->parent[getContainer(travPoint->strings,0)]
+            struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
+            strcpy(temp->strings,checkIfSame);
+            temp->endOfWord = 1;
+            temp->parent[0] = travPoint->parent[0];
+            temp->child[getContainer(proFixSave,0)] = travPoint;
 
+            travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;  //Seg fault here :(
+            travPoint->parent[0] = temp;
+
+
+
+
+            /* memset(travPoint->strings,'\0',500*sizeof(char));
+             strcpy(travPoint->strings,checkIfSame); //this is "back"
+             travPoint->endOfWord = 1;
+ */
             //Then Save the profix
-            travPoint->child[firstLetterContainer] = NULL;
+            memset(travPoint->strings,'\0',500*sizeof(char));
+            strcpy(travPoint->strings,proFixSave);
+            travPoint->endOfWord = 1;
+/*            travPoint->child[firstLetterContainer] = NULL;
             travPoint->child[firstLetterContainer] = (struct Node *)calloc(26,
                                                              sizeof(struct Node));
-            strcpy(travPoint->child[firstLetterContainer]->strings,proFixSave);  //TODO Might have to flip proFixSave and checkIfSave
-            travPoint->child[firstLetterContainer]->endOfWord = 1;
+            strcpy(travPoint->child[firstLetterContainer]->strings,proFixSave);  //TODO Might have to flip proFixSave and checkIfSave this is flip
+            travPoint->child[firstLetterContainer]->endOfWord = 1;*/
             return 0;
 
         }
@@ -212,7 +225,7 @@ int insertWord(char val[500], struct Node *trie, int begin) {
                                                                        sizeof(struct Node));
         travPoint->child[lastLetterContainer]->endOfWord = 1;
         strcpy(travPoint->child[lastLetterContainer]->strings,suffixArray);
-        travPoint->child[lastLetterContainer]->parent[lastLetterContainer] = travPoint;
+        travPoint->child[lastLetterContainer]->parent[0] = travPoint;
         //memset(suffixArray,'\0',500*sizeof(char));
     }
 
