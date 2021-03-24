@@ -44,7 +44,11 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         travPoint->child[ascii]->parent[0] = travPoint;
         begin = 0;
         strcpy(travPoint->child[ascii]->strings, val);
-        travPoint->endOfWord = 1;
+        if (trie->root) {
+            travPoint->endOfWord = 0;
+        }
+        travPoint->child[ascii]->endOfWord = 1;
+
         return 0;
     }
 
@@ -77,10 +81,15 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
     }
 
     if(strcmp(travPoint->strings,val) == 0) {
-        printf("%s","It enters");
-        travPoint->endOfWord = 1;
+        if (travPoint->endOfWord == 1) {
+            printf("%s","Word is already in the trie");
+        }
+        else {
+            travPoint->endOfWord = 1;
+        }
         return 0;
     }
+
 
 
     int suffixFlag = 0;
@@ -137,7 +146,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
             memset(travPoint->strings,'\0',500*sizeof(char));
             strcpy(travPoint->strings,proFixSave);
-            travPoint->endOfWord = 1;
+            //travPoint->endOfWord = 1;
             return 0;
 
         }
@@ -145,7 +154,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         //Need to save the stuff that was left out from checkIfSave
         else if (userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i+1] != 471604252 && search == 0) {
             // Let us first split it and delete the already saved prefix from checkIfSame
-            for (int k = 0; k < strlen(checkIfSame); ++k) {
+            for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
                 //If the char is the same as the node string, delete it
                 if (checkIfSame[k] == travPoint->strings[k]) {
                     travPoint->strings[k] = '?'; //I did "?" instead of '\0' as strlen stops when a null is first seen
@@ -213,14 +222,74 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         }
     }
 
+    //TODO: Clean this bloat fix up
+    if (strlen(travPoint->strings) == strlen(val) && userAsciiTracker[strlen(val)] != asciiNodeTracker[strlen(travPoint->strings)]) {
+        // Let us first split it and delete the already saved prefix from checkIfSame
+        for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
+            //If the char is the same as the node string, delete it
+            if (checkIfSame[k] == travPoint->strings[k]) {
+                travPoint->strings[k] = '?'; //I did "?" instead of '\0' as strlen stops when a null is first seen
+                remainderCount += 1; //Save the remainder of what needs to be placed into the new node
+            }
+        }
 
-    if (flagForMatch && search == 0) {
-        travPoint = travPoint->child[lastLetterContainer];
-        return insertWord(suffixArray,travPoint,0,0);
+        //Save the remaining user string not from checkIfSame
+        for (int l = 0; l < 1; ++l) {
+            remainUserString[w] = (char)(userAsciiTracker[strlen(val)-1]+97);
+            //travPoint->strings[remainderCount] = '?';
+            remainderCount += 1;
+            w += 1;
+        }
+
+
+        for (int k = 0; k < strlen(travPoint->strings); ++k) {
+            //Get the profix and skip where the prefix used to be
+            if (travPoint->strings[k] != '?'){
+                if (savedFirstLetter == 0) {
+                    savedFirstLetter = 1;
+                }
+                proFixSave[v] = travPoint->strings[k]; //This should be Node 2 which is the profix and checkIfSame is the prefix
+                v+=1;
+            }
+        }
+        // Save the profix which is "flip"
+        memset(travPoint->strings,'\0',500*sizeof(char));
+        strcpy(travPoint->strings,proFixSave);
+        travPoint->endOfWord = 1;
+
+        //ProfixSave = flip
+        //remainUserString = s
+        //checkIfSame = back == insert this
+        //temp is the "back" and not the end of word
+        struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
+        struct Node *temp2 = (struct Node*)calloc(26,sizeof(struct Node));
+        int size = (int) strlen(checkIfSame);
+        checkIfSame[size-1] = '\0';
+        strcpy(temp->strings,checkIfSame);
+        temp->endOfWord = 0;
+        temp->parent[0] = travPoint->parent[0];
+        temp->child[getContainer(proFixSave,0)] = travPoint;
+        // Save the second node
+        strcpy(temp2->strings,remainUserString);
+        temp2->endOfWord = 1;
+        temp->child[getContainer(remainUserString,0)] = temp2;
+        temp2->parent[0] = temp;
+
+        // Now need to save the nodes already in the trie!
+        travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;
+        travPoint->parent[0] = temp;
+        return 0;
     }
-    else if (flagForMatch && search == 1) {
+
+
+    if (flagForMatch && search == 1) {
         travPoint = travPoint->child[lastLetterContainer];
         return insertWord(suffixArray,travPoint,0,1);
+    }
+
+    if (flagForMatch) {
+        travPoint = travPoint->child[lastLetterContainer];
+        return insertWord(suffixArray,travPoint,0,0);
     }
 
     // If the child at the last letter of the suffix is empty, put the node in
@@ -251,8 +320,15 @@ int search(char val[500], struct Node *trie){
 
 
 
+int deleteTrie(struct Node *trie, int i){
+    if (trie == NULL || i == 27) {
+        return 0;
+    }
+    i++;
+    deleteTrie(trie->child[i],i);
 
-int deleteTrie(struct Node *trie){
+    printf("%s %s","Deleting word", trie->strings);
+    free(trie);
     return 0;
 }
 
@@ -298,7 +374,7 @@ int main() {
                 break;
 
             case 'e':  // empty the trie
-                deleteTrie(root);
+                deleteTrie(root,0);
                 //printf("%s",val);
                 break;
 
@@ -317,7 +393,7 @@ int main() {
                 printNumOfWords(val,root);
                 break;
             case 'q': // empty the trie and leave
-                deleteTrie(root);
+                deleteTrie(root,0);
                 //DELETE THIS LATER
                 //free(root);
                 break;
