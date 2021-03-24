@@ -141,7 +141,6 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
             return 0;
 
         }
-        //TODO: Figure out what node node needs to go for the prefix non-backflip case
         // Prefix Case for the non-backfilp case
         //Need to save the stuff that was left out from checkIfSave
         else if (userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i+1] != 471604252 && search == 0) {
@@ -194,7 +193,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
             temp->child[getContainer(remainUserString,0)] = temp2;
             temp2->parent[0] = temp;
 
-            //Now need to save the nodes already in the trie!
+            // Now need to save the nodes already in the trie!
             travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;
             travPoint->parent[0] = temp;
             return 0;
@@ -202,7 +201,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         }
 
         else {
-            //If the node and the val given are the same, save the char
+            // If the node and the val given are the same, save the char
             lastLetterContainer = userAsciiTracker[i+1];
             checkIfSame[i] = (char)(userAsciiTracker[i]+97);
             lengthOfValString -= 1;
@@ -233,7 +232,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         travPoint->child[lastLetterContainer]->parent[0] = travPoint;
     }
 
-    else if (travPoint->child[lastLetterContainer] == NULL && search == 1) {
+    else if (search == 1) {
         printf("%s","Word was not found");
         return 0;
     }
@@ -245,13 +244,10 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
 
 
-
-
 int search(char val[500], struct Node *trie){
     insertWord(val,trie,0,1);
     return 0;
 }
-
 
 
 
@@ -322,6 +318,8 @@ int main() {
                 break;
             case 'q': // empty the trie and leave
                 deleteTrie(root);
+                //DELETE THIS LATER
+                //free(root);
                 break;
             default:
                 printf("That's not a legal command\n");
