@@ -10,6 +10,7 @@ struct Node {
     int root;
     struct Node * child[26];
     struct Node * parent[1];
+    int nodeSize;
 };
 
 
@@ -62,7 +63,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
     }
 
     if (travPoint == NULL && search == 1) {
-        printf("%s","Word was not found");
+        printf("%s","Word was not found\n");
         return 0;
     }
 
@@ -82,7 +83,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
     if(strcmp(travPoint->strings,val) == 0) {
         if (travPoint->endOfWord == 1) {
-            printf("%s","Word is already in the trie");
+            printf("%s","Word is already in the trie\n");
         }
         else {
             travPoint->endOfWord = 1;
@@ -302,7 +303,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
     }
 
     else if (search == 1) {
-        printf("%s","Word was not found");
+        printf("%s","Word was not found\n");
         return 0;
     }
 
@@ -319,7 +320,6 @@ int search(char val[500], struct Node *trie){
 }
 
 
-
 int deleteTrie(struct Node *trie){
     if (trie == NULL) {
         return 0;
@@ -329,7 +329,7 @@ int deleteTrie(struct Node *trie){
         deleteTrie(trie->child[i]);
     }
 
-    printf("%s %s","Deleting word ", trie->strings);
+    printf("%s %s\n","Deleting the node", trie->strings);
     free(trie);
     return 0;
 }
@@ -338,9 +338,28 @@ int printTrieWords(char val[500], struct Node *trie) {
     return 0;
 }
 
-int printNodeLength(char val[500],struct Node *trie) {
+
+
+
+int printNodeLength(struct Node *trie, struct Node *root) {
+    if (trie == NULL) {
+        return 0;
+    }
+
+    for (int i = 0; i < 26; ++i) {
+        printNodeLength(trie->child[i],root);
+    }
+    root->nodeSize += 1;
+
     return 0;
 }
+
+
+
+
+
+
+
 
 int printNumOfWords(char val[500],struct Node *trie) {
     return 0;
@@ -389,8 +408,10 @@ int main() {
                 break;
 
             case 'n': // print the strings in each node
-                scanf("%s", val);
-                printNodeLength(val,root);
+                printNodeLength(root,root);
+                root->nodeSize -= 1;
+                printf("The node length is %d\n",root->nodeSize);
+                root->nodeSize = 0;
                 break;
 
             case 'w': // count how many words that are in the trie
