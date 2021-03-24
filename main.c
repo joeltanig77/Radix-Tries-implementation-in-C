@@ -320,14 +320,16 @@ int search(char val[500], struct Node *trie){
 
 
 
-int deleteTrie(struct Node *trie, int i){
-    if (trie == NULL || i == 27) {
+int deleteTrie(struct Node *trie){
+    if (trie == NULL) {
         return 0;
     }
-    i++;
-    deleteTrie(trie->child[i],i);
 
-    printf("%s %s","Deleting word", trie->strings);
+    for (int i = 0; i < 26; ++i) {
+        deleteTrie(trie->child[i]);
+    }
+
+    printf("%s %s","Deleting word ", trie->strings);
     free(trie);
     return 0;
 }
@@ -353,6 +355,7 @@ int main() {
     char val[500];
     char input;
     int begin = 1;
+    int delStart = 0;
     struct Node* root = NULL;
     root = (struct Node*)calloc(26,sizeof(struct Node));
     do {
@@ -374,7 +377,9 @@ int main() {
                 break;
 
             case 'e':  // empty the trie
-                deleteTrie(root,0);
+                deleteTrie(root);
+                root = (struct Node*)calloc(26,sizeof(struct Node));
+                begin = 1;
                 //printf("%s",val);
                 break;
 
@@ -393,7 +398,7 @@ int main() {
                 printNumOfWords(val,root);
                 break;
             case 'q': // empty the trie and leave
-                deleteTrie(root,0);
+                deleteTrie(root);
                 //DELETE THIS LATER
                 //free(root);
                 break;
