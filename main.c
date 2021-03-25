@@ -11,6 +11,7 @@ struct Node {
     struct Node * child[26];
     struct Node * parent[1];
     int nodeSize;
+    int wordCount;
 };
 
 
@@ -345,12 +346,10 @@ int printNodeLength(struct Node *trie, struct Node *root) {
     if (trie == NULL) {
         return 0;
     }
-
     for (int i = 0; i < 26; ++i) {
         printNodeLength(trie->child[i],root);
     }
     root->nodeSize += 1;
-
     return 0;
 }
 
@@ -358,10 +357,16 @@ int printNodeLength(struct Node *trie, struct Node *root) {
 
 
 
-
-
-
-int printNumOfWords(char val[500],struct Node *trie) {
+int printNumOfWords(struct Node *trie,struct Node *root) {
+    if (trie == NULL) {
+        return 0;
+    }
+    for (int i = 0; i < 26; ++i) {
+        printNumOfWords(trie->child[i],root);
+    }
+    if (trie->endOfWord == 1) {
+        root->wordCount += 1;
+    }
     return 0;
 }
 
@@ -409,13 +414,14 @@ int main() {
 
             case 'n': // print the strings in each node
                 printNodeLength(root,root);
-                printf("The node length is %d\n",root->nodeSize);
+                printf("The trie contains %d nodes\n",root->nodeSize);
                 root->nodeSize = 0;
                 break;
 
             case 'w': // count how many words that are in the trie
-                scanf("%s", val);
-                printNumOfWords(val,root);
+                printNumOfWords(root, root);
+                printf("The trie contains %d words\n",root->wordCount);
+                root->wordCount = 0;
                 break;
             case 'q': // empty the trie and leave
                 deleteTrie(root);
