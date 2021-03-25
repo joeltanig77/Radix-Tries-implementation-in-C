@@ -153,7 +153,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         }
         // Prefix Case for the non-backfilp case
         //Need to save the stuff that was left out from checkIfSave
-        else if (userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i+1] != 471604252 && search == 0) {
+        else if (userAsciiTracker[i] != asciiNodeTracker[i] && search == 0) {
             // Let us first split it and delete the already saved prefix from checkIfSame
             for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
                 //If the char is the same as the node string, delete it
@@ -409,7 +409,6 @@ int main() {
 
             case 'n': // print the strings in each node
                 printNodeLength(root,root);
-                root->nodeSize -= 1;
                 printf("The node length is %d\n",root->nodeSize);
                 root->nodeSize = 0;
                 break;
