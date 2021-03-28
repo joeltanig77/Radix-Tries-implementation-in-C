@@ -24,10 +24,10 @@ int getContainer(const char val[500],int spot){
 }
 
 
-int insertWord(char val[500], struct Node *trie, int begin, int search) {
+int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
-    memset(userAsciiTracker,0,500*sizeof(char));
+    memset(userAsciiTracker,28,500*sizeof(char));
     int asciiNodeTracker[500];
     memset(asciiNodeTracker,28,500*sizeof(char));
     char suffixArray[500];
@@ -64,7 +64,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
     }
 
     if (travPoint == NULL && search == 1) {
-        printf("%s","Word was not found\n");
+        printf("%s is missing\n", initVal);
         return 0;
     }
 
@@ -84,7 +84,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
     if(strcmp(travPoint->strings,val) == 0) {
         if (travPoint->endOfWord == 1) {
-            printf("%s","Word is already in the trie\n");
+            printf("%s is present\n",initVal);
         }
         else {
             travPoint->endOfWord = 1;
@@ -284,12 +284,12 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
     if (flagForMatch && search == 1) {
         travPoint = travPoint->child[lastLetterContainer];
-        return insertWord(suffixArray,travPoint,0,1);
+        return insertWord(suffixArray,travPoint,0,1,initVal);
     }
 
     if (flagForMatch) {
         travPoint = travPoint->child[lastLetterContainer];
-        return insertWord(suffixArray,travPoint,0,0);
+        return insertWord(suffixArray,travPoint,0,0,initVal);
     }
 
     // If the child at the last letter of the suffix is empty, put the node in
@@ -302,7 +302,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
     }
 
     else if (search == 1) {
-        printf("%s","Word was not found\n");
+        printf("%s is missing\n", initVal);
         return 0;
     }
 
@@ -314,7 +314,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
 
 
 int search(char val[500], struct Node *trie){
-    insertWord(val,trie,0,1);
+    insertWord(val,trie,0,1,val);
     return 0;
 }
 
@@ -477,7 +477,7 @@ int main() {
             case 'i': // insert a value
                 // read value to insert
                 scanf("%s", val);
-                insertWord(val, root,begin,0);
+                insertWord(val, root,begin,0,val);
                 begin = 0;
                 break;
 
@@ -500,13 +500,13 @@ int main() {
 
             case 'n': // print the strings in each node
                 printNodeLength(root,root);
-                printf("The trie contains %d nodes\n",root->nodeSize);
+                printf("Trie contains %d nodes\n",root->nodeSize);
                 root->nodeSize = 0;
                 break;
 
             case 'w': // count how many words that are in the trie
                 printNumOfWords(root, root);
-                printf("The trie contains %d words\n",root->wordCount);
+                printf("Trie contains %d words\n",root->wordCount);
                 root->wordCount = 0;
                 break;
             case 'q': // empty the trie and leave
