@@ -109,7 +109,6 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         // Suffix Case
         if(userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 471604252 || suffixFlag == 1) {
             //Save the suffix
-            //memset(suffixArray,'\0',500*sizeof(char));
             suffixArray[j] = (char) (userAsciiTracker[i]+97);
             j++;
             suffixFlag = 1;
@@ -224,7 +223,6 @@ int insertWord(char val[500], struct Node *trie, int begin, int search) {
         }
     }
 
-    //TODO: Clean this bloat fix up
     if (strlen(travPoint->strings) == strlen(val) && userAsciiTracker[strlen(val)] != asciiNodeTracker[strlen(travPoint->strings)]) {
         // Let us first split it and delete the already saved prefix from checkIfSame
         for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
@@ -335,7 +333,88 @@ int deleteTrie(struct Node *trie){
     return 0;
 }
 
-int printTrieWords(char val[500], struct Node *trie) {
+
+int printTrieWords(struct Node *trie,char container[500],int flagForAdd,int *q,char concatContainer[500],int *w) {
+    if (trie == NULL) {
+        return 0;
+    }
+    if (trie->parent[0] != NULL && trie->endOfWord == 0 && trie->parent[0]->endOfWord == 1){
+        printf("%s",trie->parent[0]->strings);
+    }
+    //This is for the bart case
+    else if (trie->endOfWord == 1 && flagForAdd == 1 && trie->root == 0 && trie->parent[0]->endOfWord == 1) {
+        char showContainer[500];
+        memset(showContainer,'\0',500*sizeof(char));
+        memset(concatContainer,'\0',500*sizeof(char));
+        strcpy(showContainer,container);
+        *w = 0;
+        for (int i = 0; i < 40; ++i) {
+            if (trie->strings[i] != '\0') {
+                concatContainer[*w] = trie->parent[0]->strings[i];
+                *w+=1;
+            }
+        }
+        for (int i = 0; i < 40; ++i) {
+            if (trie->strings[i] != '\0') {
+                concatContainer[*w] = trie->strings[i];
+                *w+=1;
+            }
+        }
+        int t = 0;
+        for (int i = 0; i < 40; ++i) {
+            if (showContainer[i] == '\0') {
+                showContainer[i] = concatContainer[t];
+                t += 1;
+            }
+        }
+        printf("%s\n", showContainer);
+        //memset(concatContainer,'\0',500*sizeof(char));
+
+
+
+    }
+    // If we reach back to our parent and its a prefix, add the suffix
+    //This is for bar
+    else if (trie->endOfWord == 1 && flagForAdd == 1 && trie->root == 0 && trie->parent[0]->endOfWord == 0) {
+        char showContainer[500];
+        memset(showContainer,'\0',500*sizeof(char));
+        strcpy(showContainer,container);
+        int offset = 0;
+        for (int i = 0; i < 40; ++i) {
+            if (trie->strings[i] != '\0') {
+                showContainer[*q] = trie->strings[i];
+                *q+=1;
+                offset += 1;
+            }
+        }
+        *q = *q - offset;
+        printf("%s\n", showContainer);
+        //flagForAdd = 0;
+    }
+
+    // If we reach the add it to the container
+    else if (trie->endOfWord == 0 && trie->root == 0) {
+        memset(container,'\0',500*sizeof(char));
+        memset(concatContainer,'\0',500*sizeof(char));
+        *w = 0;
+        flagForAdd = 1;
+        for (int i = 0; i < 40; ++i) {
+            if (trie->strings[i] != '\0') {
+                container[*q] = trie->strings[i];
+                *q+=1;
+            }
+        }
+        //printf("%s\n", container);
+    }
+    else if (trie->endOfWord == 1 && flagForAdd == 0 && trie->root == 0) {
+        printf("%s\n", trie->strings);
+        *q = 0;
+        //memset(root->strings,'\0',500*sizeof(char));
+    }
+    for (int i = 0; i < 26; ++i) {
+        printTrieWords(trie->child[i],container,flagForAdd,q,concatContainer,w);
+    }
+
     return 0;
 }
 
@@ -377,9 +456,16 @@ int printNumOfWords(struct Node *trie,struct Node *root) {
 
 int main() {
     char val[500];
+    char str[500];
+    memset(str,'\0',500*sizeof(char));
+    char container[500];
+    memset(container,'\0',500*sizeof(char));
+    char concatContainer[500];
+    memset(concatContainer,'\0',500*sizeof(char));
     char input;
     int begin = 1;
-    int delStart = 0;
+    int q = 0;
+    int w = 0;
     struct Node* root = NULL;
     root = (struct Node*)calloc(26,sizeof(struct Node));
     do {
@@ -408,8 +494,8 @@ int main() {
                 break;
 
             case 'p': // print the words in the trie
-                scanf("%s", val);
-                printTrieWords(val,root);
+                printTrieWords(root,container,0,&q,concatContainer,&w);
+                q = 0;
                 break;
 
             case 'n': // print the strings in each node
