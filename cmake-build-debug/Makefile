@@ -170,6 +170,33 @@ main.c.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/RadixTrees.dir/build.make CMakeFiles/RadixTrees.dir/main.c.s
 .PHONY : main.c.s
 
+radixFunc.o: radixFunc.c.o
+
+.PHONY : radixFunc.o
+
+# target to build an object file
+radixFunc.c.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RadixTrees.dir/build.make CMakeFiles/RadixTrees.dir/radixFunc.c.o
+.PHONY : radixFunc.c.o
+
+radixFunc.i: radixFunc.c.i
+
+.PHONY : radixFunc.i
+
+# target to preprocess a source file
+radixFunc.c.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RadixTrees.dir/build.make CMakeFiles/RadixTrees.dir/radixFunc.c.i
+.PHONY : radixFunc.c.i
+
+radixFunc.s: radixFunc.c.s
+
+.PHONY : radixFunc.s
+
+# target to generate assembly for a file
+radixFunc.c.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/RadixTrees.dir/build.make CMakeFiles/RadixTrees.dir/radixFunc.c.s
+.PHONY : radixFunc.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -182,6 +209,9 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
+	@echo "... radixFunc.o"
+	@echo "... radixFunc.i"
+	@echo "... radixFunc.s"
 .PHONY : help
 
 

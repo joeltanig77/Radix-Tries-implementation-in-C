@@ -1,5 +1,6 @@
 file(REMOVE_RECURSE
   "CMakeFiles/RadixTrees.dir/main.c.o"
+  "CMakeFiles/RadixTrees.dir/radixFunc.c.o"
   "RadixTrees"
   "RadixTrees.pdb"
 )

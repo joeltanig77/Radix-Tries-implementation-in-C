@@ -79,6 +79,12 @@
 		<Unit filename="/home/joeltanig77/CLionProjects/RadixTrees/main.c">
 			<Option target="RadixTrees"/>
 		</Unit>
+		<Unit filename="/home/joeltanig77/CLionProjects/RadixTrees/radixFunc.c">
+			<Option target="RadixTrees"/>
+		</Unit>
+		<Unit filename="/home/joeltanig77/CLionProjects/RadixTrees/radixFunc.h">
+			<Option target="RadixTrees"/>
+		</Unit>
 		<Unit filename="/home/joeltanig77/CLionProjects/RadixTrees/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
