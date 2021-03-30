@@ -6,7 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/home/joeltanig77/CLionProjects/RadixTrees/main.c
+/home/joeltanig77/CLionProjects/RadixTrees/radixFunc.c
+radixFunc.h
+/home/joeltanig77/CLionProjects/RadixTrees/radixFunc.h
 stdio.h
 -
 stdlib.h
@@ -15,4 +17,6 @@ ctype.h
 /home/joeltanig77/CLionProjects/RadixTrees/ctype.h
 string.h
 -
+
+/home/joeltanig77/CLionProjects/RadixTrees/radixFunc.h
 

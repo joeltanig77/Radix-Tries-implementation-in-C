@@ -13,13 +13,12 @@ int getContainer(const char val[500],int spot){
 }
 
 
-
 int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
-    memset(userAsciiTracker,1,500);
+    memset(userAsciiTracker,1,498*sizeof(char));
     int asciiNodeTracker[500];
-    memset(asciiNodeTracker,1,500);
+    memset(asciiNodeTracker,1,498*sizeof(char));
     char suffixArray[500];
     memset(suffixArray,0,500*sizeof(char));
     char checkIfSame[500];
@@ -81,7 +80,6 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         }
         return 0;
     }
-
 
 
     int suffixFlag = 0;
