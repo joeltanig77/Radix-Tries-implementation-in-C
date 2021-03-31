@@ -16,8 +16,10 @@ int main() {
     memset(concatContainer,'\0',500*sizeof(char));
     char input;
     int begin = 1;
+    int flagForNext = 0;
+    int offset = 0;
     int q = 0;
-    int w = 0;
+    int trieIsEmpty = 1;
     struct Node* root = NULL;
     root = (struct Node*)calloc(26,sizeof(struct Node));
     do {
@@ -30,6 +32,7 @@ int main() {
                 // read value to insert
                 scanf("%s", val);
                 insertWord(val, root,begin,0,val);
+                trieIsEmpty = 0;
                 begin = 0;
                 break;
 
@@ -42,11 +45,14 @@ int main() {
                 deleteTrie(root);
                 root = (struct Node*)calloc(26,sizeof(struct Node));
                 begin = 1;
+                trieIsEmpty = 1;
                 //printf("%s",val);
                 break;
 
             case 'p': // print the words in the trie
-                printTrieWords(root,container,0,&q,concatContainer,&w);
+                if (trieIsEmpty) break;
+                printTrieWords(root,container,concatContainer,&flagForNext,&q,&offset);
+                memset(container,'\0',500*sizeof(char));
                 q = 0;
                 break;
 

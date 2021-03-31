@@ -1,7 +1,6 @@
 #include "radixFunc.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "ctype.h"
 #include <string.h>
 
 int getContainer(const char val[500],int spot){
@@ -12,7 +11,9 @@ int getContainer(const char val[500],int spot){
     return ascii;
 }
 
-
+// TODO: Fix "te" case
+// i test i slow i water i slower i tester i team i toast
+// p
 int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
@@ -75,8 +76,11 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         if (travPoint->endOfWord == 1) {
             printf("%s is present\n",initVal);
         }
-        else {
+        else if (search == 0){
             travPoint->endOfWord = 1;
+        }
+        else if (search == 1) {
+            printf("%s is missing\n", initVal);
         }
         return 0;
     }
@@ -96,7 +100,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
     for (int i = 0; i < length; i++) {
         // Suffix Case
         if((userAsciiTracker[i] != asciiNodeTracker[i] && asciiNodeTracker[i] == 16843009) || suffixFlag == 1) {
-            //Save the suffix
+            // Save the suffix
             suffixArray[j] = (char) (userAsciiTracker[i]+97);
             j++;
             suffixFlag = 1;
@@ -284,7 +288,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         strcpy(travPoint->child[lastLetterContainer]->strings,suffixArray);
         travPoint->child[lastLetterContainer]->parent[0] = travPoint;
     }
-
+    // If we get to this point, we know that our string is not in the tree
     else if (search == 1) {
         printf("%s is missing\n", initVal);
         return 0;
@@ -304,7 +308,7 @@ int deleteTrie(struct Node *trie){
     if (trie == NULL) {
         return 0;
     }
-
+    // Pre-order walk
     for (int i = 0; i < 26; ++i) {
         deleteTrie(trie->child[i]);
     }
@@ -315,84 +319,88 @@ int deleteTrie(struct Node *trie){
 }
 
 
-int printTrieWords(struct Node *trie,char container[500],int flagForAdd,int *q,char concatContainer[500],int *w) {
+int printTrieWords(struct Node *trie,char container[500],char concatContainer[500],int *flagForNext,int *q,int *offset) {
     if (trie == NULL) {
         return 0;
     }
-    if (trie->parent[0] != NULL && trie->endOfWord == 0 && trie->parent[0]->endOfWord == 1){
-        printf("%s",trie->parent[0]->strings);
-    }
-        //This is for the bart case
-    else if (trie->endOfWord == 1 && flagForAdd == 1 && trie->root == 0 && trie->parent[0]->endOfWord == 1) {
-        char showContainer[500];
-        memset(showContainer,'\0',500*sizeof(char));
-        memset(concatContainer,'\0',500*sizeof(char));
-        strcpy(showContainer,container);
-        *w = 0;
-        for (int i = 0; i < 40; ++i) {
-            if (trie->strings[i] != '\0') {
-                concatContainer[*w] = trie->parent[0]->strings[i];
-                *w+=1;
-            }
-        }
-        for (int i = 0; i < 40; ++i) {
-            if (trie->strings[i] != '\0') {
-                concatContainer[*w] = trie->strings[i];
-                *w+=1;
-            }
-        }
-        int t = 0;
-        for (int i = 0; i < 40; ++i) {
-            if (showContainer[i] == '\0') {
-                showContainer[i] = concatContainer[t];
-                t += 1;
-            }
-        }
-        printf("%s\n", showContainer);
-        //memset(concatContainer,'\0',500*sizeof(char));
 
+    // If I move to a new child from the root, then reset
 
+    // Root case 1
+    if (trie->endOfWord == 1 && trie->root == 0 && trie->parent[0]->root == 1) {
+        *q = 0;
+        memset(container,'\0',500*sizeof(char));
+        for (int i = 0; i < 40; ++i) {
+            if (container[i] == '\0') {
+                container[i] = trie->strings[i];
+            }
+        }
+        printf("%s\n",trie->strings);
+        //return 0;
     }
-        // If we reach back to our parent and its a prefix, add the suffix
-        //This is for bar
-    else if (trie->endOfWord == 1 && flagForAdd == 1 && trie->root == 0 && trie->parent[0]->endOfWord == 0) {
+    // Root case 2
+    else if (trie->endOfWord == 0 && trie->root == 0 && trie->parent[0]->root == 1) {
+        memset(container,'\0',500*sizeof(char));
+        *q = 0;
+        for (int i = 0; i < 40; ++i) {
+            if (container[i] == '\0') {
+                container[i] = trie->strings[i];
+            }
+        }
+        //return 0;
+    }
+
+    // Print the string we added
+    else if (trie->endOfWord == 1 && trie->root == 0 && *flagForNext == 0) {
         char showContainer[500];
         memset(showContainer,'\0',500*sizeof(char));
         strcpy(showContainer,container);
-        int offset = 0;
+        int offset2 = 0;
         for (int i = 0; i < 40; ++i) {
             if (trie->strings[i] != '\0') {
                 showContainer[*q] = trie->strings[i];
                 *q+=1;
-                offset += 1;
+                offset2 += 1;
+                //*offset +=1;
             }
         }
-        *q = *q - offset;
-        printf("%s\n", showContainer);
-        //flagForAdd = 0;
+        *q = *q - offset2;
+        //TODO: with the offset  (below here) FIX SHOW CONTAINER
+        *offset = (int) strlen(trie->strings);
+        //*offset = (int) strlen(trie->parent[0]->strings);
+       // printf("%d", (int) strlen(trie->parent[0]->strings));
+        printf("%s\n",showContainer);
     }
 
-        // If we reach the add it to the container
-    else if (trie->endOfWord == 0 && trie->root == 0) {
-        memset(container,'\0',500*sizeof(char));
-        memset(concatContainer,'\0',500*sizeof(char));
-        *w = 0;
-        flagForAdd = 1;
+    // Add the string into the container
+    if (trie->root == 0) {
         for (int i = 0; i < 40; ++i) {
             if (trie->strings[i] != '\0') {
                 container[*q] = trie->strings[i];
                 *q+=1;
             }
         }
-        //printf("%s\n", container);
+    } // Delete the suffix in order to put the next word in
+    //TODO: Somethng needs to change with offset
+    int i;
+    for (i = 0; i < 26; ++i) {
+        if (trie->root == 0 && *flagForNext == 1) {
+
+            for (int j = 40; j > 0; --j) {
+                if (container[j] != '\0' && *offset != 0) {
+                    container[j] = '\0';
+                    *offset -= 1;
+                    *q -= 1;
+                }
+            }
+        }
+        *flagForNext = 0;
+        printTrieWords(trie->child[i],container,concatContainer,flagForNext,q,offset);
     }
-    else if (trie->endOfWord == 1 && flagForAdd == 0 && trie->root == 0) {
-        printf("%s\n", trie->strings);
-        *q = 0;
-        //memset(root->strings,'\0',500*sizeof(char));
-    }
-    for (int i = 0; i < 26; ++i) {
-        printTrieWords(trie->child[i],container,flagForAdd,q,concatContainer,w);
+    // If we have a another kid
+    *flagForNext = 1;
+    if (i == 26) {
+        *offset = (int) strlen(trie->strings);
     }
     return 0;
 }

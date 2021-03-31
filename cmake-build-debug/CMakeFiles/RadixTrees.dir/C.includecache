@@ -13,8 +13,6 @@ stdio.h
 -
 stdlib.h
 -
-ctype.h
-/home/joeltanig77/CLionProjects/RadixTrees/ctype.h
 string.h
 -
 
