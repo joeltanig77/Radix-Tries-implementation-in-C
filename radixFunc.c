@@ -3,15 +3,16 @@
 #include <stdlib.h>
 #include <string.h>
 
+
+/* This is a function file that contains all of the functionality for the radix trie */
+
 int getContainer(const char val[500],int spot){
-    // 97 == a
-    // h == 7 after calc
     char letter = val[spot];
     int ascii = letter - 97;
     return ascii;
 }
 
-// i test i slow i water i slower i tester i team i toast
+
 int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
@@ -24,29 +25,30 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
     memset(checkIfSame,'\0',500*sizeof(char));
     int flagForMatch = 0; // 1 = suffix case
     // Insert the empty node when the trie is empty
-    int ascii = getContainer(val, 0);
-    if (begin || (travPoint->root == 1 && travPoint->child[ascii] == NULL && search == 0)) {
-        travPoint->child[ascii] = NULL;
-        travPoint->child[ascii] = (struct Node *) calloc(26,
+    int firstLetterBucket = getContainer(val, 0);
+    // If there is not root, insert the root with the sentinel
+    if (begin || (travPoint->root == 1 && travPoint->child[firstLetterBucket] == NULL && search == 0)) {
+        travPoint->child[firstLetterBucket] = NULL;
+        travPoint->child[firstLetterBucket] = (struct Node *) calloc(26,
                                                          sizeof(struct Node)); // Might have to make this 1 since I am using child inside of node
         travPoint->root = 1;
-        // Link parent
-        travPoint->child[ascii]->parent[0] = travPoint;
+        // Link parent here
+        travPoint->child[firstLetterBucket]->parent[0] = travPoint;
         begin = 0;
-        strcpy(travPoint->child[ascii]->strings, val);
+        strcpy(travPoint->child[firstLetterBucket]->strings, val);
         if (trie->root) {
             travPoint->endOfWord = 0;
         }
-        travPoint->child[ascii]->endOfWord = 1;
-
+        travPoint->child[firstLetterBucket]->endOfWord = 1;
         return 0;
     }
 
     // Move down from the sentinel
     if(travPoint->root == 1) {
-        travPoint = travPoint->child[ascii];
+        travPoint = travPoint->child[firstLetterBucket];
     }
 
+    // Turn the user string into a bucket slot
     for (int j = 0; j < strlen(val); j++) {
         userAsciiTracker[j] = getContainer(val, j);
     }
@@ -56,6 +58,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         return 0;
     }
 
+    // Turn the node string into a bucket slot
     for (int k = 0; k < strlen(travPoint->strings); ++k) {
         asciiNodeTracker[k] = getContainer(travPoint->strings, k);
     }
@@ -63,7 +66,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
     int length;
     int lengthOfValString = ((int) strlen(val));
 
-
+    // Take the highest length of the node string or the user string and assign it to the length var
     if (strlen(travPoint->strings) < strlen(val)) {
         length = (int) strlen(val);
     } else {
@@ -123,55 +126,53 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
                     v+=1;
                 }
             }
+
             // Save the prefix first
-            // travPoint->parent[getContainer(travPoint->strings,0)]
             struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
             strcpy(temp->strings,checkIfSame);
             temp->endOfWord = 1;
             temp->parent[0] = travPoint->parent[0];
             temp->child[getContainer(proFixSave,0)] = travPoint;
-
             travPoint->parent[0]->child[getContainer(checkIfSame,0)] = temp;
             travPoint->parent[0] = temp;
-
-
             memset(travPoint->strings,'\0',500*sizeof(char));
             strcpy(travPoint->strings,proFixSave);
-            //travPoint->endOfWord = 1;
             return 0;
-
         }
             // Prefix Case for the non-backfilp case
-            //Need to save the stuff that was left out from checkIfSave
+            // Need to save the stuff that was left out from checkIfSave
         else if (userAsciiTracker[i] != asciiNodeTracker[i] && search == 0) {
             // Let us first split it and delete the already saved prefix from checkIfSame
             for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
-                //If the char is the same as the node string, delete it
+                // If the char is the same as the node string, delete it
                 if (checkIfSame[k] == travPoint->strings[k]) {
-                    travPoint->strings[k] = '?'; //I did "?" instead of '\0' as strlen stops when a null is first seen
-                    remainderCount += 1; //Save the remainder of what needs to be placed into the new node
+                    // I did "?" instead of '\0' as strlen stops when a null is first seen
+                    travPoint->strings[k] = '?';
+                    // Save the remainder of what needs to be placed into the new node
+                    remainderCount += 1;
                 }
             }
 
-            //Save the remaining user string not from checkIfSame
+            // Save the remaining user string not from checkIfSame
             for (int l = 0; l < lengthOfValString; ++l) {
                 remainUserString[w] = (char)(userAsciiTracker[remainderCount]+97);
-                //travPoint->strings[remainderCount] = '?';
                 remainderCount += 1;
                 w += 1;
             }
 
 
             for (int k = 0; k < strlen(travPoint->strings); ++k) {
-                //Get the profix and skip where the prefix used to be
+                // Get the profix and skip where the prefix used to be
                 if (travPoint->strings[k] != '?'){
                     if (savedFirstLetter == 0) {
                         savedFirstLetter = 1;
                     }
-                    proFixSave[v] = travPoint->strings[k]; //This should be Node 2 which is the profix and checkIfSame is the prefix
+                    // This should be in Node 2 which is the profix and checkIfSame is the prefix
+                    proFixSave[v] = travPoint->strings[k];
                     v+=1;
                 }
             }
+
             // Save the profix which is "flip"
             memset(travPoint->strings,'\0',500*sizeof(char));
             strcpy(travPoint->strings,proFixSave);
@@ -182,17 +183,17 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
                 travPoint->endOfWord = 0;
             }
 
+            /*  If we added s to a word like flip are values would be....
+            ProfixSave = flip, remainUserString = s, checkIfSame = back == insert this
+            temp is the "back" and not the end of word  */
 
-            // ProfixSave = flip
-            // remainUserString = s
-            // checkIfSame = back == insert this
-            // temp is the "back" and not the end of word
             struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
             struct Node *temp2 = (struct Node*)calloc(26,sizeof(struct Node));
             strcpy(temp->strings,checkIfSame);
             temp->endOfWord = 0;
             temp->parent[0] = travPoint->parent[0];
             temp->child[getContainer(proFixSave,0)] = travPoint;
+
             // Save the second node
             strcpy(temp2->strings,remainUserString);
             temp2->endOfWord = 1;
@@ -212,7 +213,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
             checkIfSame[i] = (char)(userAsciiTracker[i]+97);
             lengthOfValString -= 1;
 
-            //Suffix Case
+            // If we reach here we have a suffix case to deal with
             if (strcmp(checkIfSame,travPoint->strings) == 0 && travPoint->child[lastLetterContainer] != NULL) {
                 flagForMatch = 1;
             }
@@ -223,7 +224,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
     if (strlen(travPoint->strings) == strlen(val) && userAsciiTracker[strlen(val)] != asciiNodeTracker[strlen(travPoint->strings)]) {
         // Let us first split it and delete the already saved prefix from checkIfSame
         for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
-            //If the char is the same as the node string, delete it
+            // If the char is the same as the node string, delete it
             if (checkIfSame[k] == travPoint->strings[k]) {
                 travPoint->strings[k] = '?'; //I did "?" instead of '\0' as strlen stops when a null is first seen
                 remainderCount += 1; //Save the remainder of what needs to be placed into the new node
@@ -240,12 +241,13 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
 
 
         for (int k = 0; k < strlen(travPoint->strings); ++k) {
-            //Get the profix and skip where the prefix used to be
+            // Get the profix and skip where the prefix used to be
             if (travPoint->strings[k] != '?'){
                 if (savedFirstLetter == 0) {
                     savedFirstLetter = 1;
                 }
-                proFixSave[v] = travPoint->strings[k]; //This should be Node 2 which is the profix and checkIfSame is the prefix
+                // This should be Node 2 which is the profix and checkIfSame is the prefix
+                proFixSave[v] = travPoint->strings[k];
                 v+=1;
             }
         }
@@ -254,7 +256,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         strcpy(travPoint->strings,proFixSave);
         travPoint->endOfWord = 1;
 
-
+        // Start the insert process here
         struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
         struct Node *temp2 = (struct Node*)calloc(26,sizeof(struct Node));
         int size = (int) strlen(checkIfSame);
@@ -263,6 +265,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         temp->endOfWord = 0;
         temp->parent[0] = travPoint->parent[0];
         temp->child[getContainer(proFixSave,0)] = travPoint;
+
         // Save the second node
         strcpy(temp2->strings,remainUserString);
         temp2->endOfWord = 1;
@@ -275,12 +278,13 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         return 0;
     }
 
-
+    // If we are searching turn on the search flag and keep recursing down the tree for the suffix case
     if (flagForMatch && search == 1) {
         travPoint = travPoint->child[lastLetterContainer];
         return insertWord(suffixArray,travPoint,0,1,initVal);
     }
 
+    // If we are not searching, recurse down the tree and turn off the search flag
     if (flagForMatch) {
         travPoint = travPoint->child[lastLetterContainer];
         return insertWord(suffixArray,travPoint,0,0,initVal);
@@ -299,15 +303,17 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         printf("%s is missing\n", initVal);
         return 0;
     }
-
     return 0;
 }
+
 
 
 int search(char val[500], struct Node *trie){
+    // Call the insert flag but pass in the search flag to not activate any insert function
     insertWord(val,trie,0,1,val);
     return 0;
 }
+
 
 
 int deleteTrie(struct Node *trie){
@@ -318,11 +324,11 @@ int deleteTrie(struct Node *trie){
     for (int i = 0; i < 26; ++i) {
         deleteTrie(trie->child[i]);
     }
-
     printf("%s %s\n","Deleting the node", trie->strings);
     free(trie);
     return 0;
 }
+
 
 
 int printTrieWords(struct Node *trie,char container[500],char concatContainer[500],int *flagForNext,int *q,int *offset) {
@@ -330,8 +336,7 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
         return 0;
     }
 
-
-    // Root case 1
+    // Root case for if we are the end of word
     if (trie->endOfWord == 1 && trie->root == 0 && trie->parent[0]->root == 1) {
         *q = 0;
         memset(container,'\0',500*sizeof(char));
@@ -342,7 +347,7 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
         }
         printf("%s\n",trie->strings);
     }
-    // Root case 2
+    // Root case for if we are not the end of word
     else if (trie->endOfWord == 0 && trie->root == 0 && trie->parent[0]->root == 1) {
         memset(container,'\0',500*sizeof(char));
         *q = 0;
@@ -353,7 +358,7 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
         }
     }
 
-    // Print the string we added
+    // Print the string we added to our container
     else if (trie->endOfWord == 1 && trie->root == 0 && *flagForNext == 0) {
         char showContainer[500];
         memset(showContainer,'\0',500*sizeof(char));
@@ -364,17 +369,14 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
                 showContainer[*q] = trie->strings[i];
                 *q+=1;
                 offset2 += 1;
-                //*offset +=1;
             }
         }
         *q = *q - offset2;
         *offset = (int) strlen(trie->strings);
-        //*offset = (int) strlen(trie->parent[0]->strings);
-       // printf("%d", (int) strlen(trie->parent[0]->strings));
         printf("%s\n",showContainer);
     }
 
-    // Add the string into the container
+    // Add the string into the master container so we can add to the container
     if (trie->root == 0) {
         for (int i = 0; i < 40; ++i) {
             if (trie->strings[i] != '\0') {
@@ -382,7 +384,8 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
                 *q+=1;
             }
         }
-    } // Delete the suffix in order to put the next word in
+    }
+    // Delete the suffix in order to put the next word in
     int i;
     for (i = 0; i < 26; ++i) {
         if (trie->root == 0 && *flagForNext == 1) {
@@ -397,8 +400,8 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
         *flagForNext = 0;
         printTrieWords(trie->child[i],container,concatContainer,flagForNext,q,offset);
     }
-    // If we have a another kid
     *flagForNext = 1;
+    // If we reach here, the node has no children left, so prime the node string container for deletion
     if (i == 26) {
         *offset = (int) strlen(trie->strings);
     }
@@ -417,6 +420,8 @@ int printNodeLength(struct Node *trie, struct Node *root) {
     root->nodeSize += 1;
     return 0;
 }
+
+
 
 int printNumOfWords(struct Node *trie,struct Node *root) {
     if (trie == NULL) {

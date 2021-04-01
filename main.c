@@ -4,7 +4,7 @@
 #include "ctype.h"
 #include <string.h>
 
-
+/* The included makefile will build and run the program */
 
 int main() {
     char val[500];
@@ -46,7 +46,6 @@ int main() {
                 root = (struct Node*)calloc(26,sizeof(struct Node));
                 begin = 1;
                 trieIsEmpty = 1;
-                //printf("%s",val);
                 break;
 
             case 'p': // print the words in the trie
@@ -69,8 +68,6 @@ int main() {
                 break;
             case 'q': // empty the trie and leave
                 deleteTrie(root);
-                //DELETE THIS LATER
-                //free(root);
                 break;
             default:
                 printf("That's not a legal command\n");
