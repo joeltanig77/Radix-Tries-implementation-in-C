@@ -11,9 +11,7 @@ int getContainer(const char val[500],int spot){
     return ascii;
 }
 
-// TODO: Fix "te" case
 // i test i slow i water i slower i tester i team i toast
-// p
 int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
     int userAsciiTracker[500];
@@ -177,12 +175,18 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
             // Save the profix which is "flip"
             memset(travPoint->strings,'\0',500*sizeof(char));
             strcpy(travPoint->strings,proFixSave);
-            travPoint->endOfWord = 1;
+            if (travPoint->endOfWord == 1) {
+                travPoint->endOfWord = 1;
+            }
+            else {
+                travPoint->endOfWord = 0;
+            }
 
-            //ProfixSave = flip
-            //remainUserString = s
-            //checkIfSame = back == insert this
-            //temp is the "back" and not the end of word
+
+            // ProfixSave = flip
+            // remainUserString = s
+            // checkIfSame = back == insert this
+            // temp is the "back" and not the end of word
             struct Node *temp = (struct Node*)calloc(26,sizeof(struct Node));
             struct Node *temp2 = (struct Node*)calloc(26,sizeof(struct Node));
             strcpy(temp->strings,checkIfSame);
@@ -215,6 +219,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
         }
     }
 
+
     if (strlen(travPoint->strings) == strlen(val) && userAsciiTracker[strlen(val)] != asciiNodeTracker[strlen(travPoint->strings)]) {
         // Let us first split it and delete the already saved prefix from checkIfSame
         for (int k = 0; k < strlen(checkIfSame)+1; ++k) {
@@ -224,6 +229,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
                 remainderCount += 1; //Save the remainder of what needs to be placed into the new node
             }
         }
+
 
         // Save the remaining user string not from checkIfSame
         for (int l = 0; l < 1; ++l) {
@@ -281,7 +287,7 @@ int insertWord(char val[500], struct Node *trie, int begin, int search,char init
     }
 
     // If the child at the last letter of the suffix is empty, put the node in
-    if (travPoint->child[lastLetterContainer] == NULL && search == 0) {
+    if (lastLetterContainer != 16843009 && travPoint->child[lastLetterContainer] == NULL && search == 0) {
         travPoint->child[lastLetterContainer] = (struct Node *) calloc(26,
                                                                        sizeof(struct Node));
         travPoint->child[lastLetterContainer]->endOfWord = 1;
@@ -324,7 +330,6 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
         return 0;
     }
 
-    // If I move to a new child from the root, then reset
 
     // Root case 1
     if (trie->endOfWord == 1 && trie->root == 0 && trie->parent[0]->root == 1) {
@@ -336,7 +341,6 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
             }
         }
         printf("%s\n",trie->strings);
-        //return 0;
     }
     // Root case 2
     else if (trie->endOfWord == 0 && trie->root == 0 && trie->parent[0]->root == 1) {
@@ -347,7 +351,6 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
                 container[i] = trie->strings[i];
             }
         }
-        //return 0;
     }
 
     // Print the string we added
@@ -365,7 +368,6 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
             }
         }
         *q = *q - offset2;
-        //TODO: with the offset  (below here) FIX SHOW CONTAINER
         *offset = (int) strlen(trie->strings);
         //*offset = (int) strlen(trie->parent[0]->strings);
        // printf("%d", (int) strlen(trie->parent[0]->strings));
@@ -381,11 +383,9 @@ int printTrieWords(struct Node *trie,char container[500],char concatContainer[50
             }
         }
     } // Delete the suffix in order to put the next word in
-    //TODO: Somethng needs to change with offset
     int i;
     for (i = 0; i < 26; ++i) {
         if (trie->root == 0 && *flagForNext == 1) {
-
             for (int j = 40; j > 0; --j) {
                 if (container[j] != '\0' && *offset != 0) {
                     container[j] = '\0';
