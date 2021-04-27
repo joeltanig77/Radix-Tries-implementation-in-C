@@ -3,7 +3,7 @@
 This program takes a word and inserts it into a radix tree. If you are not familiar of what a radix tree is or would like an animated example of what this project is doing click [here](https://www.cs.usfca.edu/~galles/visualization/RadixTree.html) to see the tree in action as you insert words! This data structure is meant for autocorrect which can predict what work the user will press next. 
 
 ## How to run
-Download the project with it's Makefile and type make run into the directory of the project 
+Download the project with its Makefile and type make run into the directory of the project 
 ```python
 make run
 ```
