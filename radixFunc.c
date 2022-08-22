@@ -15,6 +15,7 @@ int getContainer(const char val[500],int spot){
 
 int insertWord(char val[500], struct Node *trie, int begin, int search,char initVal[500]) {
     struct Node *travPoint = trie;
+    // Yes
     int userAsciiTracker[500];
     memset(userAsciiTracker,1,498*sizeof(char));
     int asciiNodeTracker[500];
